@@ -29,3 +29,6 @@ def main(verbose: bool):
 
 main.add_command(generate_documents_command)
 main.add_command(list_styles_command)
+
+if __name__ == "__main__":
+    main()

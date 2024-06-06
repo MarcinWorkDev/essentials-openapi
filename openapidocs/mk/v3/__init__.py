@@ -606,7 +606,15 @@ class OpenAPIV3DocumentationHandler:
             if not schema:
                 return []
 
-        return [[key, value] for key, value in sort_dict(schema.get("properties", {}))]
+        if schema.get("allOf"):
+            all_of = {}
+            for prop in schema["allOf"]:
+                all_of.update([key, value] for key, value in sort_dict(prop.get("properties", {})))
+            items = [[key, value] for key, value in all_of.items()]
+        else:
+            items = [[key, value] for key, value in sort_dict(schema.get("properties", {}))]
+
+        return items
 
     def iter_schemas_bindings(self):
         """
