@@ -607,10 +607,16 @@ class OpenAPIV3DocumentationHandler:
 
             if is_allof(value):
                 print("yolo")
-                items_dict = {}
+                required = []
+                properties = {}
+                item = {}
                 for prop in value.get("allOf", {}):
-                    items_dict.update(prop.get("properties", {}))
-                clone[key] = self.expand_references(items_dict)
+                    required = required + prop.get("required", [])
+                    properties.update(prop.get("properties", {}))
+                    item.update(prop)
+                item["required"] = required
+                item["properties"] = properties
+                clone[key] = self.expand_references(item)
                 print(clone[key])
             elif isinstance(value, dict):
                 clone[key] = self.resolve_allof(value)
