@@ -1,13 +1,9 @@
 {% for event_name, event_definition in operation.callbacks.items() %}
-
 {% for name, definitions in event_definition.items() %}
-
-<p class="response-title">
-<strong>Callback: {{name}}</strong>
-</p>
-
 {% for method, definition in definitions.items() %}
-{{method}}
+<p class="response-title">
+<strong>Callback: {{name}} ({{method}})</strong>
+</p>
 {%- if definition.summary %}
 <p>{{definition.summary}}</p>
 {% endif -%}
