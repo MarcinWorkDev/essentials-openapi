@@ -157,7 +157,7 @@ class OpenAPIV3DocumentationHandler:
         if "$ref" in obj:
             reference = obj["$ref"]
             if isinstance(reference, str) and not reference.startswith("#/"):
-                referred_file = Path(os.path.abspath(source_path / reference))
+                referred_file = Path(os.path.abspath(source_path / reference).split("#")[0])
 
                 if referred_file.exists():
                     logger.debug("Handling $ref source: %s", reference)
