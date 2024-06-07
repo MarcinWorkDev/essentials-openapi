@@ -615,7 +615,8 @@ class OpenAPIV3DocumentationHandler:
                     item.update(prop)
                 item["required"] = required
                 item["properties"] = properties
-                clone[key] = self.expand_references(item)
+                item = self.expand_references(item)
+                clone[key] = self.resolve_allof(item)
                 print(clone[key])
             elif isinstance(value, dict):
                 clone[key] = self.resolve_allof(value)
