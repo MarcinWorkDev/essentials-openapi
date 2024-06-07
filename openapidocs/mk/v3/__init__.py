@@ -157,13 +157,18 @@ class OpenAPIV3DocumentationHandler:
         if "$ref" in obj:
             reference = obj["$ref"]
             if isinstance(reference, str) and not reference.startswith("#/"):
-                referred_file = Path(os.path.abspath(source_path / reference).split("#")[0])
+                referred = os.path.abspath(source_path / reference).split("#")
+                referred_file = Path(referred[0])
 
                 if referred_file.exists():
                     logger.debug("Handling $ref source: %s", reference)
                 else:
                     raise OpenAPIFileNotFoundError(reference, referred_file)
                 sub_fragment = read_from_source(str(referred_file))
+
+                if len(referred) > 1:
+                    sub_fragment = read_dict(sub_fragment, *referred[1].lstrip("/").split("/"))
+
                 return self._transform_data(sub_fragment, referred_file.parent)
             else:
                 return obj
@@ -609,10 +614,6 @@ class OpenAPIV3DocumentationHandler:
         if schema.get("allOf"):
             items_dict = {}
             for prop in schema["allOf"]:
-                if prop.get("components"):
-                    prop = next(iter(prop.get("components").get("schemas").values()))
-                if prop.get("schemas"):
-                    prop = next(iter(prop.get("schemas").values()))
                 items_dict.update(prop.get("properties", {}))
         else:
             items_dict = schema.get("properties", {})
