@@ -103,7 +103,6 @@ class OpenAPIV3DocumentationHandler:
             __name__, views_style=style_from_value(style)
         )
         self.doc = self.normalize_data(copy.deepcopy(doc))
-        self.doc = self.expand_references(self.doc)
         self.doc = self.resolve_allof(self.doc)
 
     @property
