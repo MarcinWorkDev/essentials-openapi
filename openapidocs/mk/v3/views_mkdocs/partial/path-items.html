@@ -29,6 +29,10 @@
 {%- if operation.responses %}
 {%- include "partial/request-responses.html" %}
 {%- endif %}
+
+{%- if operation.callbacks %}
+{%- include "partial/request-callbacks.html" %}
+{%- endif %}
 {% endfor %}
 {% endfor %}
 {% endfor %}

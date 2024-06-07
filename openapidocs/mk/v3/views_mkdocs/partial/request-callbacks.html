@@ -1,0 +1,79 @@
+{% for event_name, event_definition in operation.callbacks.items() %}
+SIEEEEMA!
+{% for name, definitions in event_definition.items() %}
+
+<p class="response-title">
+<strong>Callback: {{name}}</strong>
+</p>
+
+{% for method, definition in definitions.items() %}
+
+=== "{{method}}"
+{%- if definition.summary %}
+<p>{{definition.summary}}</p>
+{% endif -%}
+
+{%- if definition.requestBody %}
+{%- with content = handler.simplify_content(definition.requestBody.content) %}
+{% for content_type, definition in content.items() %}
+=== "{{content_type}}"
+{% include "partial/content-examples.html" %}
+{% if "alt_types" in definition %}<em class="small-note alt-types">{{texts.other_possible_types}}: {{definition.alt_types | join(", ")}}</em>{% endif %}
+
+??? hint "{{texts.schema_of_the_response_body}}"
+```json
+{{handler.write_content_schema(definition) | indent(8) | safe}}
+```
+{% endfor %}
+{% endwith -%}
+{% endif -%}
+
+{%- if definition.requestBody %}
+{% endif -%}
+
+
+{%- if definition.content %}
+{%- with content = handler.simplify_content(definition.content) %}
+{% for content_type, definition in content.items() %}
+=== "{{content_type}}"
+{% include "partial/content-examples.html" %}
+{% if "alt_types" in definition %}<em class="small-note alt-types">{{texts.other_possible_types}}: {{definition.alt_types | join(", ")}}</em>{% endif %}
+
+??? hint "{{texts.schema_of_the_response_body}}"
+```json
+{{handler.write_content_schema(definition) | indent(8) | safe}}
+```
+{% endfor %}
+{% endwith -%}
+{% endif -%}
+{%- if definition.headers %}
+<div class="response-section">
+<p class="response-headers sub-section-title">{{texts.response_headers}}</p>
+
+<table>
+<thead>
+<tr>
+<th>{{texts.name}}</th>
+<th>{{texts.description}}</th>
+<th>{{texts.schema}}</th>
+</tr>
+</thead>
+<tbody>
+{%- for header_name, header_definition in definition.headers.items() %}
+<tr>
+<td><code>{{header_name}}</code></td>
+<td>{{header_definition.description}}</td>
+<td>
+    {%- with schema = header_definition.schema %}
+        {%- include "partial/schema-repr.html" -%}
+    {% endwith -%}
+</td>
+</tr>
+{%- endfor %}
+</tbody>
+</table>
+</div>
+{% endif -%}
+{%- endfor -%}
+{%- endfor -%}
+{%- endfor -%}
