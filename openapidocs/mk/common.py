@@ -32,6 +32,18 @@ def is_reference(data) -> bool:
     return "$ref" in data
 
 
+def is_allof(data) -> bool:
+    """
+    Returns a value indicating whether the given dictionary represents
+    a allOf property.
+
+    is_allof({"allOf": [...]) -> True
+    """
+    if not isinstance(data, dict):
+        return False
+    return "allOf" in data
+
+
 def is_object_schema(data) -> bool:
     """
     Returns a value indicating whether the given schema dictionary represents

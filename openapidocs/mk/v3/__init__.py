@@ -17,6 +17,7 @@ from openapidocs.mk.common import (
     is_array_schema,
     is_object_schema,
     is_reference,
+    is_allof,
 )
 from openapidocs.mk.contents import ContentWriter, FormContentWriter, JSONContentWriter
 from openapidocs.mk.jinja import Jinja2DocumentsWriter, OutputStyle
@@ -102,6 +103,8 @@ class OpenAPIV3DocumentationHandler:
             __name__, views_style=style_from_value(style)
         )
         self.doc = self.normalize_data(copy.deepcopy(doc))
+        self.doc = self.expand_references(self.doc)
+        self.doc = self.resolve_allof(self.doc)
 
     @property
     def source(self) -> str:
@@ -484,7 +487,7 @@ class OpenAPIV3DocumentationHandler:
                 if isinstance(definition, str):
                     value = definition
                 elif is_reference(definition):
-                    value = self.resolve_reference(definition)
+                    value = self.expand_references(definition)
                 else:
                     value = definition.get("value")
                 yield ContentExample(value, False, example_name)
@@ -589,6 +592,34 @@ class OpenAPIV3DocumentationHandler:
 
         return clone
 
+    def resolve_allof(self, schema):
+        """
+        This method resolves allOf elements in whole schema by combining multiple children to one.
+        """
+        if schema is None:
+            # this should not happen, but we don't want the whole build to fail
+            return None
+
+        clone = copy.deepcopy(schema)
+
+        for key in list(clone.keys()):
+            value = clone[key]
+
+            if is_allof(value):
+                print("yolo")
+                items_dict = {}
+                for prop in value.get("allOf", {}):
+                    items_dict.update(prop.get("properties", {}))
+                clone[key] = self.expand_references(items_dict)
+                print(clone[key])
+            elif isinstance(value, dict):
+                clone[key] = self.resolve_allof(value)
+            else:
+                clone[key] = value
+                continue
+
+        return clone
+
     def get_content_writer(self, content_type: str) -> ContentWriter:
         """
         Returns a ContentWriter to create a markdown representation of the given
@@ -605,19 +636,7 @@ class OpenAPIV3DocumentationHandler:
         )
 
     def get_properties(self, schema):
-        if is_reference(schema):
-            schema = self.resolve_reference(schema)
-
-            if not schema:
-                return []
-
-        if schema.get("allOf"):
-            items_dict = {}
-            for prop in schema["allOf"]:
-                items_dict.update(prop.get("properties", {}))
-        else:
-            items_dict = schema.get("properties", {})
-
+        items_dict = schema.get("properties", {})
         items = [[key, value] for key, value in items_dict.items()]
         return items
 
