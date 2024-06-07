@@ -641,9 +641,13 @@ class OpenAPIV3DocumentationHandler:
         )
 
     def get_properties(self, schema):
-        items_dict = schema.get("properties", {})
-        items = [[key, value] for key, value in items_dict.items()]
-        return items
+        if is_reference(schema):
+            schema = self.resolve_reference(schema)
+
+            if not schema:
+                return []
+
+        return [[key, value] for key, value in sort_dict(schema.get("properties", {}))]
 
     def iter_schemas_bindings(self):
         """
