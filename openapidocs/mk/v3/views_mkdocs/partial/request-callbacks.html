@@ -1,32 +1,32 @@
 {% for event_name, event_definition in operation.callbacks.items() %}
 
-{% for name, definitions in event_definition.items() %}
+    {% for name, definitions in event_definition.items() %}
 
-<p class="response-title">
-<strong>Callback: {{name}}</strong>
-</p>
+        <p class="response-title">
+            <strong>Callback: {{name}}</strong>
+        </p>
 
-{% for method, definition in definitions.items() %}
+        {% for method, definition in definitions.items() %}
 
-=== "{{method}}"
-{%- if definition.summary %}
-<p>{{definition.summary}}</p>
-{% endif -%}
+            === "{{method}}"
+            {%- if definition.summary %}
+                <p>{{definition.summary}}</p>
+            {% endif -%}
 
-{%- if definition.requestBody %}
-{%- with content = handler.simplify_content(definition.requestBody.content) %}
-{% for content_type, definition in content.items() %}
-=== "{{content_type}}"
-{% include "partial/content-examples.html" %}
-{% if "alt_types" in definition %}<em class="small-note alt-types">{{texts.other_possible_types}}: {{definition.alt_types | join(", ")}}</em>{% endif %}
+            {%- if definition.requestBody %}
+                {%- with content = handler.simplify_content(definition.requestBody.content) %}
+                    {% for content_type, definition in content.items() %}
+                        <small>{{content_type}}</small>
+                        {% include "partial/content-examples.html" %}
+                        {% if "alt_types" in definition %}<em class="small-note alt-types">{{texts.other_possible_types}}: {{definition.alt_types | join(", ")}}</em>{% endif %}
 
-??? hint "{{texts.schema_of_the_response_body}}"
-```json
-{{handler.write_content_schema(definition) | indent(8) | safe}}
-```
-{% endfor %}
-{% endwith -%}
-{% endif -%}
-{%- endfor -%}
-{%- endfor -%}
+                        ??? hint "{{texts.schema_of_the_response_body}}"
+                        ```json
+                        {{handler.write_content_schema(definition) | indent(8) | safe}}
+                        ```
+                    {% endfor %}
+                {% endwith -%}
+            {% endif -%}
+        {%- endfor -%}
+    {%- endfor -%}
 {%- endfor -%}
