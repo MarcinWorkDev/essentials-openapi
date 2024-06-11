@@ -605,7 +605,6 @@ class OpenAPIV3DocumentationHandler:
             value = clone[key]
 
             if is_allof(value):
-                print("yolo")
                 required = []
                 properties = {}
                 item = {}
@@ -616,7 +615,6 @@ class OpenAPIV3DocumentationHandler:
                 item["required"] = required
                 item["properties"] = properties
                 clone[key] = self.resolve_allof(item)
-                print(clone[key])
             elif isinstance(value, dict):
                 clone[key] = self.resolve_allof(value)
             else:
